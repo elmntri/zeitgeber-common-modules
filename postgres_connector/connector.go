@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/viper"
-	"github.com/elmntri/Zeitgeber-common-modules/database"
+	"github.com/elmntri/zeitgeber-common-modules/database"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
