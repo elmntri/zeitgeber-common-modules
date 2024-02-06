@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"gitlab.elmntri.co/zeitgeber/common-modules/daemon"
-	"gitlab.elmntri.co/zeitgeber/common-modules/http_server"
+	"github.com/elmntri/Zeitgeber-common-modules/daemon"
+	"github.com/elmntri/Zeitgeber-common-modules/http_server"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )

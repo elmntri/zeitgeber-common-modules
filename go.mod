@@ -1,4 +1,4 @@
-module gitlab.elmntri.co/zeitgeber/common-modules
+module github.com/elmntri/Zeitgeber-common-modules
 
 go 1.21
 
