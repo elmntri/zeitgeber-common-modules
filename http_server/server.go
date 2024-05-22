@@ -81,6 +81,7 @@ func (hs *HTTPServer) onStart(ctx context.Context) error {
 	port := viper.GetInt(hs.getConfigPath("port"))
 	host := viper.GetString(hs.getConfigPath("host"))
 	addr := fmt.Sprintf("%s:%d", host, port)
+
 	logLevel := viper.GetString(hs.getConfigPath("loglevel"))
 
 	allowOrigins := viper.GetString(hs.getConfigPath("allow_origins"))
@@ -90,15 +91,20 @@ func (hs *HTTPServer) onStart(ctx context.Context) error {
 	logger.Info("Starting HTTPServer",
 		zap.String("address", addr),
 	)
+
 	if logLevel == "test" {
 		gin.SetMode(gin.TestMode)
 	}
 
-	if logLevel == "release" {
+	if logLevel == "release" || logLevel = "prod" {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
 	hs.router = gin.Default()
+
+	if logLevel = "prod" {
+		hs.router = gin.New()
+	}
 
 	// Setup Cors
 	corsConfig := cors.DefaultConfig()
