@@ -110,6 +110,7 @@ func (c *PostgresConnector) onStart(ctx context.Context) error {
 
 	opts := &gorm.Config{
 		Logger: gorm_logger.Default.LogMode(gorm_logger.LogLevel(viper.GetInt(c.getConfigPath("loglevel")))),
+		TranslateError: true,
 	}
 
 	db, err := gorm.Open(postgres.Open(dsn), opts)
