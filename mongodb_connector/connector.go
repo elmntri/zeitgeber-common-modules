@@ -144,11 +144,13 @@ func (c *MongoDBConnector) onStart(ctx context.Context) error {
 	// Connect to MongoDB
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
+		c.logger.Error(err.Error())
 		return err
 	}
 
     // Check the connection
 	if err := client.Ping(context.TODO(), nil); err != nil {
+		c.logger.Error(err.Error())
 		return err
     }
 

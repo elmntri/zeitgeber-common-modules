@@ -102,8 +102,8 @@ func (c *NATSConnector) onStart(ctx context.Context) error {
 		nats.PingInterval(time.Duration(pingInterval) * time.Second),
 		nats.MaxPingsOutstanding(maxPingsOutstanding),
 		nats.MaxReconnects(maxReconnects),
-		//		nats.ReconnectHandler(eb.ReconnectHandler),
-		//		nats.DisconnectHandler(eb.handler.Disconnect),
+		// nats.ReconnectHandler(eb.ReconnectHandler),
+		// nats.DisconnectHandler(eb.handler.Disconnect),
 	}
 
 	if len(creds) > 0 {
@@ -111,6 +111,7 @@ func (c *NATSConnector) onStart(ctx context.Context) error {
 	} else if len(nkey) > 0 {
 		opt, err := nats.NkeyOptionFromSeed(nkey)
 		if err != nil {
+			c.logger.Error(err.Error())
 			return err
 		}
 
@@ -124,6 +125,7 @@ func (c *NATSConnector) onStart(ctx context.Context) error {
 
 	nc, err := nats.Connect(host, opts...)
 	if err != nil {
+		c.logger.Error(err.Error())
 		return err
 	}
 
@@ -132,6 +134,7 @@ func (c *NATSConnector) onStart(ctx context.Context) error {
 	// JetStream
 	c.js, err = nc.JetStream()
 	if err != nil {
+		c.logger.Error(err.Error())
 		return err
 	}
 

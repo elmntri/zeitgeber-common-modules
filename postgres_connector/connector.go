@@ -115,6 +115,7 @@ func (c *PostgresConnector) onStart(ctx context.Context) error {
 
 	db, err := gorm.Open(postgres.Open(dsn), opts)
 	if err != nil {
+		c.logger.Error(err.Error())
 		return err
 	}
 

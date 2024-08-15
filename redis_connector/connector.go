@@ -101,6 +101,7 @@ func (c *RedisConnector) onStart(ctx context.Context) error {
 
 	_, err := rdb.Ping(ctx).Result()
 	if err != nil {
+		c.logger.Error(err.Error())
 		return err
 	}
 
