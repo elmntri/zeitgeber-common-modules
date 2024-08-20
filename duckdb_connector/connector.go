@@ -16,6 +16,7 @@ var logger *zap.Logger
 
 const (
 	DefaultDataSource = "?access_mode=READ_WRITE"
+	DefaultInstallJSON = false
 )
 
 type DuckDBConnector struct {
@@ -73,11 +74,13 @@ func (c *DuckDBConnector) getConfigPath(key string) string {
 
 func (c *DuckDBConnector) initDefaultConfigs() {
 	viper.SetDefault(c.getConfigPath("dataSource"), DefaultDataSource)
+	viper.SetDefault(c.getConfigPath("installJSON"), DefaultInstallJSON)
 }
 
 func (c *DuckDBConnector) onStart(ctx context.Context) error {
 
 	dataSource := viper.GetString(c.getConfigPath("dataSource"))
+	installJSON := viper.GetBool(c.getConfigPath("installJSON"))
 
 	db, err := sql.Open("duckdb", dataSource)
 	if err != nil {
@@ -88,6 +91,21 @@ func (c *DuckDBConnector) onStart(ctx context.Context) error {
 	if err := c.Check(db.Ping());err != nil {
 		c.logger.Error(err.Error())
 		return err
+	}
+
+	// Install and load the JSON extension
+	if installJSON {
+		_, err = db.Exec("INSTALL json;")
+		if err != nil {
+			c.logger.Error(err.Error())
+			return err
+		}
+
+		_, err = db.Exec("LOAD json;")
+		if err != nil {
+			c.logger.Error(err.Error())
+			return err
+		}
 	}
 
 	c.db = db
