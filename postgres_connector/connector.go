@@ -21,6 +21,7 @@ const (
 	DefaultPassword = ""
 	DefaultSSLMode  = false
 	DefaultLogLevel = gorm_logger.Error
+	DefaultDebugMode = false
 )
 
 type PostgresConnector struct {
@@ -83,6 +84,7 @@ func (c *PostgresConnector) initDefaultConfigs() {
 	viper.SetDefault(c.getConfigPath("password"), DefaultPassword)
 	viper.SetDefault(c.getConfigPath("sslmode"), DefaultSSLMode)
 	viper.SetDefault(c.getConfigPath("loglevel"), DefaultLogLevel)
+	viper.SetDefault(c.getConfigPath("debug_mode"), DefaultDebugMode)
 }
 
 func (c *PostgresConnector) onStart(ctx context.Context) error {
@@ -117,6 +119,10 @@ func (c *PostgresConnector) onStart(ctx context.Context) error {
 	if err != nil {
 		c.logger.Error(err.Error())
 		return err
+	}
+
+	if viper.GetBool(c.getConfigPath("debug_mode")) {
+		db = db.Debug()
 	}
 
 	c.db = db
