@@ -22,6 +22,7 @@ const (
 	DefaultSSLMode  = false
 	DefaultLogLevel = gorm_logger.Error
 	DefaultDebugMode = false
+	DefaultTimeZone = ""
 )
 
 type PostgresConnector struct {
@@ -82,15 +83,16 @@ func (c *PostgresConnector) initDefaultConfigs() {
 	viper.SetDefault(c.getConfigPath("dbname"), DefaultDbName)
 	viper.SetDefault(c.getConfigPath("user"), DefaultUser)
 	viper.SetDefault(c.getConfigPath("password"), DefaultPassword)
-	viper.SetDefault(c.getConfigPath("sslmode"), DefaultSSLMode)
-	viper.SetDefault(c.getConfigPath("loglevel"), DefaultLogLevel)
+	viper.SetDefault(c.getConfigPath("ssl_mode"), DefaultSSLMode)
+	viper.SetDefault(c.getConfigPath("log_level"), DefaultLogLevel)
 	viper.SetDefault(c.getConfigPath("debug_mode"), DefaultDebugMode)
+	viper.SetDefault(c.getConfigPath("time_zone"), DefaultTimeZone)
 }
 
 func (c *PostgresConnector) onStart(ctx context.Context) error {
 
 	sslmode := "disable"
-	if viper.GetBool(c.getConfigPath("sslmode")) {
+	if viper.GetBool(c.getConfigPath("ssl_mode")) {
 		sslmode = "enable"
 	}
 
@@ -103,15 +105,19 @@ func (c *PostgresConnector) onStart(ctx context.Context) error {
 		sslmode,
 	)
 
+	if viper.GetString(c.getConfigPath("time_zone")) != "" {
+		dsn = fmt.Sprintf("%s TimeZone=%s", dsn, viper.GetString(c.getConfigPath("time_zone")))
+	}
+
 	c.logger.Info("Starting PostgresConnector",
 		zap.String("host", viper.GetString(c.getConfigPath("host"))),
 		zap.Int("port", viper.GetInt(c.getConfigPath("port"))),
 		zap.String("dbname", viper.GetString(c.getConfigPath("dbname"))),
-		zap.Int("loglevel", viper.GetInt(c.getConfigPath("loglevel"))),
+		zap.Int("log_level", viper.GetInt(c.getConfigPath("log_level"))),
 	)
 
 	opts := &gorm.Config{
-		Logger: gorm_logger.Default.LogMode(gorm_logger.LogLevel(viper.GetInt(c.getConfigPath("loglevel")))),
+		Logger: gorm_logger.Default.LogMode(gorm_logger.LogLevel(viper.GetInt(c.getConfigPath("log_level")))),
 		TranslateError: true,
 	}
 
