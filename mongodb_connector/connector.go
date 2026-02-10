@@ -6,23 +6,23 @@ import (
 	"net/url"
 
 	"github.com/spf13/viper"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
-	"go.mongodb.org/mongo-driver/mongo"
-    "go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var logger *zap.Logger
 
 const (
-	DefaultHost     = "0.0.0.0"
-	DefaultPort     = 27017
-	DefaultDB       = ""
-	DefaultUser     = ""
-	DefaultPassword = ""
-	DefaultAuthMechanism = ""
+	DefaultHost           = "0.0.0.0"
+	DefaultPort           = 27017
+	DefaultDB             = ""
+	DefaultUser           = ""
+	DefaultPassword       = ""
+	DefaultAuthMechanism  = ""
 	DefaultReadPreference = ""
-	DefaultSSLMode  = false
+	DefaultSSLMode        = false
 )
 
 type MongoDBConnector struct {
@@ -93,8 +93,8 @@ func (c *MongoDBConnector) onStart(ctx context.Context) error {
 
 	host := viper.GetString(c.getConfigPath("host"))
 	port := viper.GetInt(c.getConfigPath("port"))
-	user :=  viper.GetString(c.getConfigPath("user"))
-	password :=  viper.GetString(c.getConfigPath("password"))
+	user := viper.GetString(c.getConfigPath("user"))
+	password := viper.GetString(c.getConfigPath("password"))
 
 	data := map[string]string{
 		"tls": "false",
@@ -119,13 +119,13 @@ func (c *MongoDBConnector) onStart(ctx context.Context) error {
 		data["readPreference"] = viper.GetString(c.getConfigPath("readPreference"))
 	}
 
-    // Add data to the values object
-    for key, value := range data {
-        values.Add(key, value)
-    }
+	// Add data to the values object
+	for key, value := range data {
+		values.Add(key, value)
+	}
 
-    // Encode the values to URL-encoded string
-    encodedString := values.Encode()
+	// Encode the values to URL-encoded string
+	encodedString := values.Encode()
 
 	uriData := fmt.Sprintf("%v:%v/?%v", host, port, encodedString)
 	if user != "" && password != "" {
@@ -139,20 +139,20 @@ func (c *MongoDBConnector) onStart(ctx context.Context) error {
 	)
 
 	// Set client options
-    clientOptions := options.Client().ApplyURI(uri)
+	clientOptions := options.Client().ApplyURI(uri)
 
 	// Connect to MongoDB
-	client, err := mongo.Connect(context.TODO(), clientOptions)
+	client, err := mongo.Connect(clientOptions)
 	if err != nil {
 		c.logger.Error(err.Error())
 		return err
 	}
 
-    // Check the connection
+	// Check the connection
 	if err := client.Ping(context.TODO(), nil); err != nil {
 		c.logger.Error(err.Error())
 		return err
-    }
+	}
 
 	c.client = client
 
