@@ -17,6 +17,7 @@ import (
 const (
 	DefaultHost = "0.0.0.0"
 	DefaultPort = 80
+	DefaultAllowAllOrigins = true
 )
 
 var logger *zap.Logger
@@ -74,6 +75,7 @@ func (hs *HTTPServer) getConfigPath(key string) string {
 func (hs *HTTPServer) initDefaultConfigs() {
 	viper.SetDefault(hs.getConfigPath("host"), DefaultHost)
 	viper.SetDefault(hs.getConfigPath("port"), DefaultPort)
+	viper.SetDefault(hs.getConfigPath("allow_all_origins"), DefaultAllowAllOrigins)
 }
 
 func (hs *HTTPServer) onStart(ctx context.Context) error {
@@ -87,6 +89,8 @@ func (hs *HTTPServer) onStart(ctx context.Context) error {
 	allowOrigins := viper.GetString(hs.getConfigPath("allow_origins"))
 	allowMethods := viper.GetString(hs.getConfigPath("allow_methods"))
 	allowHeaders := viper.GetString(hs.getConfigPath("allow_headers"))
+	allowAllOrigins := viper.GetBool(hs.getConfigPath("allow_all_origins"))
+	allowCredentials := viper.GetBool(hs.getConfigPath("allow_credentials"))
 
 	logger.Info("Starting HTTPServer",
 		zap.String("address", addr),
@@ -114,9 +118,16 @@ func (hs *HTTPServer) onStart(ctx context.Context) error {
 		for _, a := range allows {
 			corsConfig.AllowOrigins = append(corsConfig.AllowOrigins, a)
 		}
-	} else {
-		corsConfig.AllowAllOrigins = true
 	}
+
+	if !allowAllOrigins {
+		corsConfig.AllowAllOrigins = false
+	}
+
+	if allowCredentials {
+		corsConfig.AllowCredentials = true
+	}
+
 	if allowMethods != "" {
 		allows := strings.Split(allowMethods, ",")
 		for _, a := range allows {
